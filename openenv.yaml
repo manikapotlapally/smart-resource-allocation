@@ -1,0 +1,84 @@
+name: smart-resource-env
+version: "1.0.0"
+description: >
+  An OpenEnv environment simulating NGO volunteer-to-task allocation for social impact.
+  AI agents must intelligently match community volunteers to urgent local tasks
+  (disaster relief, healthcare, education, environment) based on skills, availability,
+  location, and urgency — a real-world coordination challenge faced by NGOs daily.
+
+tags:
+  - openenv
+  - social-impact
+  - volunteer-coordination
+  - resource-allocation
+  - ngo
+  - disaster-response
+  - real-world
+
+author: "Team SmartResource"
+license: MIT
+
+environment:
+  class: env.environment.SmartResourceEnv
+  action_space:
+    type: structured
+    description: >
+      Agent submits lists of AssignAction (volunteer_id, task_id),
+      UnassignAction (volunteer_id, task_id), and optional PrioritizeAction.
+      Can also skip if no useful action available.
+  observation_space:
+    type: structured
+    description: >
+      Returns open tasks (urgency, skills, deadline, location, beneficiaries),
+      available volunteers (skills, availability_hours, reliability_score),
+      current allocations with match scores, step info, and alerts.
+  reward_range: [-1.0, 1.0]
+  reward_description: >
+    Dense shaped reward. Positive: skill match, urgency coverage, deadline adherence,
+    beneficiary reach. Negative: skill mismatch, overassignment, ignoring critical tasks.
+
+tasks:
+  - id: easy
+    name: Single Volunteer Assignment
+    difficulty: easy
+    module: tasks.easy
+    grader: graders.easy_grader
+    max_steps: 5
+    description: >
+      Assign the best-matched volunteer to a single digital literacy training task.
+
+  - id: medium
+    name: Multi-Task Volunteer Distribution
+    difficulty: medium
+    module: tasks.medium
+    grader: graders.medium_grader
+    max_steps: 10
+    description: >
+      Distribute 5 volunteers across 3 concurrent tasks with mixed urgency levels.
+
+  - id: hard
+    name: Full Disaster Response Coordination
+    difficulty: hard
+    module: tasks.hard
+    grader: graders.hard_grader
+    max_steps: 20
+    description: >
+      Triage and coordinate 11 volunteers across 8 simultaneous tasks during a
+      flood disaster, including an urgency-10 rescue operation with a 4h deadline.
+
+baseline:
+  model: gpt-4o-mini
+  script: agent/baseline.py
+  scores:
+    easy: 0.90
+    medium: 0.72
+    hard: 0.53
+
+docker:
+  image: smart-resource-env
+  build: docker build -t smart-resource-env .
+  run: docker run -e OPENAI_API_KEY=$OPENAI_API_KEY smart-resource-env
+
+huggingface:
+  space: your-username/smart-resource-env
+  sdk: docker
