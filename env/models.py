@@ -53,7 +53,7 @@ class Observation(BaseModel):
     current_allocations: List[AllocationRecord]
     step_number: int
     total_steps: int
-    episode_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    episode_score: float
     alerts: List[str] = Field(default_factory=list)  # e.g. "Flood task deadline in 2h"
 
 

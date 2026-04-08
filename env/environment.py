@@ -183,6 +183,6 @@ class SmartResourceEnv:
             current_allocations=allocations,
             step_number=self._step_count,
             total_steps=self.max_steps,
-            episode_score=round(self._cumulative_reward, 4),
+            episode_score=max(0.0, min(1.0, self._cumulative_reward)),
             alerts=alerts,
         )
